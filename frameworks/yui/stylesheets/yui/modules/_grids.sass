@@ -30,6 +30,8 @@
     +yui-two-column-right-template(240px)
   .yui-t6
     +yui-two-column-right-template(300px)
+  .yui-t7
+    +yui-one-column-template
 
 =yui-grids-footer
   clear: both
@@ -55,7 +57,7 @@
   +em-size("*"+!style, !px_size * 39 / 40, !base_font_size)
 
 // All documents must have these styles. Setting a min-width is optional, but recommended. To omit it, pass false as the min_width value.
-=yui-document-base(!min_width = 750px)
+=yui-document-base(!min_width = false)
   :margin auto
   :text-align left
   @if !min_width
@@ -73,7 +75,7 @@
 
 // Creates a fixed width document container
 // Pass "fluid" for the width to create a document that grows with the width of the browser.
-=yui-document(!width, !min_width = 750px, !base_font_size = !yui_default_base_font_size)
+=yui-document(!width, !min_width = false, !base_font_size = !yui_default_base_font_size)
   +yui-document-base(!min_width)
   @if !width == "fluid"
     :margin auto 10px
@@ -81,44 +83,51 @@
   @else
     +em-size-hacked("width", !width, !base_font_size)
 
-=yui-two-column-left-template(!column_width, !main_selector = "#yui-main", !block_selector = ".yui-b", !document_width = 750px, !min_width = 750px, !base_font_size = !yui_default_base_font_size)
+=yui-two-column-left-template(!column_width, !main_selector = "#yui-main", !block_selector = ".yui-b", !document_width = 750px, !min_width = false, !base_font_size = !yui_default_base_font_size)
   +yui-document(!document_width, !min_width, !base_font_size)
   #{!main_selector}
     :width 100%
     :float right
-    +em-size("margin-left", -!column_width - 10px, !base_font_size)
+    :margin-left -25em
     #{!block_selector}
       +yui-main-block
-      +em-size-hacked("margin-left", !column_width, !base_font_size)
+      +em-size("margin-left", !column_width + 13px, !base_font_size)
+      // t3 is 15px for IE for some reason - seems like this should be some formula based on the column width and not a fixed number - need to do more research
+      @if !column_width > 180px
+        +em-size("*margin-left", (!column_width + 15px)  * 39 / 40, !base_font_size)
+      @else
+        +em-size("*margin-left", (!column_width + 14px)  * 39 / 40, !base_font_size)
   #{!block_selector}
     +yui-block-base
     :float left
     +em-size-hacked("width", !column_width, !base_font_size)
 
-=yui-two-column-right-template(!column_width, !main_selector = "#yui-main", !block_selector = ".yui-b", !document_width = 750px, !min_width = 750px, !base_font_size = !yui_default_base_font_size)
+=yui-two-column-right-template(!column_width, !main_selector = "#yui-main", !block_selector = ".yui-b", !document_width = 750px, !min_width = false, !base_font_size = !yui_default_base_font_size)
   +yui-document(!document_width, !min_width, !base_font_size)
   #{!main_selector}
     :width 100%
     :float left
-    +em-size("margin-right", -!column_width - 10px, !base_font_size)
+    :margin-right -25em
     #{!block_selector}
       +yui-main-block
-      +em-size-hacked("margin-right", !column_width, !base_font_size)
+      +em-size("margin-right", !column_width + 13px, !base_font_size)
+      // t5 is 15px for IE for some reason - seems like this should be some formula based on the column width and not a fixed number - need to do more research
+      @if !column_width > 180px
+        +em-size("*margin-right", (!column_width + 15px)  * 39 / 40, !base_font_size)
+      @else
+        +em-size("*margin-right", (!column_width + 14px)  * 39 / 40, !base_font_size)
   #{!block_selector}
     +yui-block-base
     :float right
     +em-size-hacked("width", !column_width, !base_font_size)
 
-=yui-one-column-template(!main_selector = "#yui-main", !block_selector = ".yui-b", !document_width = 750px, !min_width = 750px, !base_font_size = !yui_default_base_font_size)
+=yui-one-column-template(!main_selector = "#yui-main", !block_selector = ".yui-b", !document_width = 750px, !min_width = false, !base_font_size = !yui_default_base_font_size)
   +yui-document(!document_width, !min_width, !base_font_size)
   #{!main_selector}
-    :width 100%
     #{!block_selector}
       +yui-main-block
       :display block
       :margin 0 0 1em 0
-  #{!block_selector}
-    +yui-block-base
 
 =yui-custom-template(!main_selector = "#yui-main", !block_selector = ".yui-b")
   #{!main_selector}
@@ -129,6 +138,9 @@
     +yui-block-base
 
 =yui-grid-divisions(!unit = ".yui-u", !g_50_50 = ".yui-g", !g_33_33_33 = ".yui-gb", !g_67_33 = ".yui-gc", !g_33_67 = ".yui-gd", !g_75_25 = ".yui-ge", !g_25_75 = ".yui-gf")
+  #{nest(!g_50_50, !unit, !g_50_50)}
+    width: 100%
+  
   #{nest(!g_50_50, !g_33_33_33, !unit)},
   #{nest(!g_67_33, !unit)},
   #{nest(!g_67_33, !g_50_50)},
@@ -141,9 +153,14 @@
   #{nest(!g_33_33_33, !g_25_75)},
   #{nest(!g_33_33_33, !unit)}
     float: left
-    margin-left: 2%
+    margin-left: 1.99%
     width: 32%
 
+  // Give IE some extra breathing room for 1/3-based rounding issues
+  #{nest(!g_33_33_33, !unit)}
+    *margin-left: 1.9%
+    *width: 31.9%
+    
   #{!g_33_33_33}
     #{!g_33_33_33},
     #{!g_67_33}
@@ -152,7 +169,7 @@
         _margin-left: 4%
 
   #{nest(!g_50_50, !g_33_33_33, !unit)}
-    _margin-left: .8%
+    _margin-left: 1.0%
 
   #{nest(!g_33_33_33, !unit)}
     float: right
@@ -173,7 +190,7 @@
     #{!g_67_33},
     #{!g_33_67}
       div.first
-    *margin-right: 0
+        *margin-right: 0
 
   #{nest(!g_33_33_33, !g_33_67, !unit)}
     *width: 66%
@@ -230,6 +247,7 @@
     div.first
       float: left
 
+  // deep nesting
   #{!g_50_50},
   #{!g_33_33_33},
   #{!g_67_33},
@@ -242,6 +260,9 @@
         *width: 48.1%
         *margin-left: 0
 
+  #{nest(!g_50_50, !g_50_50, !unit)}
+    width: 48.1%
+    
   #{nest(!g_50_50, !g_50_50, "div.first")}
     *margin: 0
 
@@ -273,7 +294,7 @@
     #{!g_75_25},
     #{!g_25_75}
       width: 49.1%
-
+        
   #{nest(!g_50_50, !g_33_33_33)},
   #{!g_33_33_33},
   #{!g_67_33},
